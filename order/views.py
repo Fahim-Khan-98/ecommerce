@@ -72,7 +72,7 @@ def cart_view(request):
         'total_price_after_discount' : total_price_after_discount,
         
     }
-    return render (request,'store/cart.html', context)
+    return render (request, 'store/cart.html', context)
 
 def remove_item_from_cart(request, pk):
     item = get_object_or_404(Product,pk=pk)
