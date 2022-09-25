@@ -121,3 +121,7 @@ MEDIA_ROOT= os.path.join(BASE_DIR, "media_root")
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#PayPal
+PAYPAL_CLIENT_ID = "AdYGPNQHg-tB-cNVvXCoAEg_g2rmKjn5vhjlvj22l2t8HpxJd7N-hA4thSvfsHcemzLk3wA3DxWSapkj"
+PAYPAL_CLIENT_SECRET = "EP7cjGovkgNlx1OdMqKIE1ZCzehj5l84dnOCLjrbJPUY3u9k1kj8zv3Q1vGHOuSSgNqm3TYoOEFTIzIG"
