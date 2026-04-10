@@ -1,11 +1,10 @@
-from pyexpat import model
-from django.forms import ModelForm
+from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-
-
 class RegistrationForm(UserCreationForm):
-    class meta:
+    email = forms.EmailField(required=True)
+    mobile = forms.CharField(max_length=15, required=True)
+
+    class Meta:
         model = User
-        fields = ("email", "username", "password1","password2")
-            
+        fields = ("username", "email", "mobile", "password1", "password2")

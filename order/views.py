@@ -1,4 +1,4 @@
-from urllib import request
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from order.models import Order, Cart
 from store.models import Product
@@ -9,40 +9,86 @@ from coupon.models import Coupon
 from django.utils import timezone
 # Create your views here.
 
+# @login_required
+# def add_to_cart(request,pk):
+#     item = get_object_or_404(Product, pk=pk)
+#     # order_item = Cart.objects.get_or_create(user = request.user, item = item, purchased=False)
+#     order_item, created = Cart.objects.get_or_create(
+#     user=request.user,
+#     item=item,
+#     purchased=False
+# )
+#     order_qs = Order.objects.filter(user=request.user, ordered=False)
+#     if order_qs.exists():
+#         order = order_qs[0]
+#         if order.orderitems.filter(item=item).exists():
+#             size = request.POST.get('size')
+#             color = request.POST.get('color')
+#             quantity = request.POST.get('quantity')
+#             if quantity:
+#                 order_item[0].quantity += int(quantity)
+#             else:
+#                 order_item[0].quantity +=1
+#             order_item[0].size = size
+#             order_item[0].color = color
+#             order_item[0].save()
+#             return redirect('store:index')
+#         else:
+#             size = request.POST.get('size')
+#             color = request.POST.get('color')
+#             order_item[0].size = size
+#             order_item[0].color = color
 
-def add_to_cart(request,pk):
+#             order.orderitems.add(order_item[0])
+#             return redirect('store:index')
+#     else:
+#         order = Order(user=request.user)
+#         order.save()
+#         order.orderitems.add(order_item[0])
+#         return redirect('store:index')
+
+@login_required
+def add_to_cart(request, pk):
     item = get_object_or_404(Product, pk=pk)
-    order_item = Cart.objects.get_or_create(user = request.user, item = item, purchased=False)
+
+    order_item, created = Cart.objects.get_or_create(
+        user=request.user,
+        item=item,
+        purchased=False
+    )
+
     order_qs = Order.objects.filter(user=request.user, ordered=False)
+
     if order_qs.exists():
         order = order_qs[0]
+
         if order.orderitems.filter(item=item).exists():
             size = request.POST.get('size')
             color = request.POST.get('color')
             quantity = request.POST.get('quantity')
-            if quantity:
-                order_item[0].quantity += int(quantity)
-            else:
-                order_item[0].quantity +=1
-            order_item[0].size = size
-            order_item[0].color = color
-            order_item[0].save()
-            return redirect('store:index')
-        else:
-            size = request.POST.get('size')
-            color = request.POST.get('color')
-            order_item[0].size = size
-            order_item[0].color = color
 
-            order.orderitems.add(order_item[0])
-            return redirect('store:index')
-    else:
-        order = Order(user=request.user)
-        order.save()
-        order.orderitems.add(order_item[0])
+            if quantity:
+                order_item.quantity += int(quantity)
+            else:
+                order_item.quantity += 1
+
+            order_item.size = size
+            order_item.color = color
+            order_item.save()
+
+        else:
+            order_item.size = request.POST.get('size')
+            order_item.color = request.POST.get('color')
+
+            order.orderitems.add(order_item)
+
         return redirect('store:index')
 
-
+    else:
+        order = Order.objects.create(user=request.user)
+        order.orderitems.add(order_item)
+        return redirect('store:index')
+    
 def cart_view(request):
     carts = Cart.objects.filter(user=request.user, purchased=False)
     orders = Order.objects.filter(user=request.user, ordered=False)

@@ -3,6 +3,9 @@ from django.http import HttpResponse
 from account.forms import RegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login,logout,authenticate
+from django.shortcuts import redirect,render
+from django.contrib.auth.models import User
+from django.contrib import messages
 
 
 
@@ -18,7 +21,7 @@ def register(request):
             form = RegistrationForm(request.POST)
             if form.is_valid():
                 form.save()
-                return HttpResponse("Your account has been created successfully")
+                return redirect('account:login')
 
         
         context={
@@ -30,13 +33,31 @@ def register(request):
 
 def CustomerLogin(request):
     if request.user.is_authenticated:
-        return HttpResponse("You're logged in.....")
-    else:
-        if request.method == "POST" or request.method == "post":
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            customer = authenticate(request ,username=username, password=password)
-            if customer is not None:
-                login(request, customer)
-                return HttpResponse('You are successfully logged in')
+        return redirect('store:index')
+
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # ✅ Check if user exists
+        if not User.objects.filter(username=username).exists():
+            messages.error(request, "Username does not exist!")
+            return redirect('account:login')
+
+        # ✅ Authenticate user
+        customer = authenticate(request, username=username, password=password)
+
+        if customer is not None:
+            login(request, customer)
+            return redirect('store:index')
+        else:
+            messages.error(request, "Password is incorrect!")
+            return redirect('account:login')
+
     return render(request, 'login.html')
+
+
+def CustomerLogout(request):
+    logout(request)
+    messages.success(request, "You have been logged out successfully!")
+    return redirect('account:login')
