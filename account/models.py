@@ -14,6 +14,9 @@ class Profile(models.Model):
     zipcode = models.CharField(max_length=10,blank=True, null=True)
     phone = models.CharField(max_length=20,blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+
+    # new added
+    image = models.ImageField(upload_to='profile/', default='profile/default.png')
     
 
 

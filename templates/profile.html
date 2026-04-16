@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card p-4 shadow">
+
+        <h3 class="text-center mb-4">👤 Update Profile</h3>
+
+        <!-- Show Image -->
+        <div class="text-center mb-3">
+          <img src="{{ request.user.profile.image.url }}"
+               class="rounded-circle"
+               width="120"
+               height="120">
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          {{ form.as_p }}
+
+          <button type="submit" class="btn btn-primary btn-block">
+            Update Profile
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
