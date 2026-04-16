@@ -63,7 +63,9 @@ def add_to_cart(request, pk):
 def cart_view(request):
     if not request.user.is_authenticated:
         return redirect('account:login')
-    carts = Cart.objects.filter(user=request.user, purchased=False)
+    
+    # carts = Cart.objects.filter(user=request.user, purchased=False)
+    carts = Cart.objects.filter(user=request.user, purchased=False, quantity__gt=0)
     orders = Order.objects.filter(user=request.user, ordered=False)
 
     # ✅ Initialize সব variable আগে
@@ -128,7 +130,8 @@ def remove_item_from_cart(request, pk):
     if orders.exists():
         order = orders[0]
         if order.orderitems.filter(item=item).exists():
-            order_item = Cart.objects.filter(item=item, user=request.user, purchased=False)[0]
+            order_item = Cart.objects.get(item=item, user=request.user, purchased=False)
+            # order_item = Cart.objects.filter(item=item, user=request.user, purchased=False)[0]
             order.orderitems.remove(order_item)
             order_item.delete()
             return redirect('order:cart')
@@ -156,24 +159,26 @@ def increase_cart(request,pk):
     else:
         return redirect('store:index')
 
-def decrease_cart(request,pk):
-    item = get_object_or_404(Product,pk=pk)
+def decrease_cart(request, pk):
+    item = get_object_or_404(Product, pk=pk)
     order_qs = Order.objects.filter(user=request.user, ordered=False)
+
     if order_qs.exists():
         order = order_qs[0]
+
         if order.orderitems.filter(item=item).exists():
-            order_item = Cart.objects.filter(item=item, user=request.user, purchased=False)[0]
-            if order_item.quantity >1:
-                order_item.quantity -=1
+            order_item = Cart.objects.get(item=item, user=request.user, purchased=False)
+
+            if order_item.quantity > 1:
+                order_item.quantity -= 1
                 order_item.save()
-                return redirect('order:cart')
             else:
-                order_item.remove(order_item)
-                order_item.save()
-                return redirect('order:cart')
-        else:
-            return redirect('store:index')
-    else:
-        return redirect('store:index')
+                # ✅ DELETE instead of 0 quantity
+                order.orderitems.remove(order_item)
+                order_item.delete()
+
+            return redirect('order:cart')
+
+    return redirect('store:index')
 
 
